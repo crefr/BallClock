@@ -15,6 +15,18 @@ DB_KEYS(
     ntp_gmt,
     ntp_host,
 
+    ball1_slider_left,
+    ball1_slider_right,
+    ball1,
+
+    ball2_slider_left,
+    ball2_slider_right,
+    ball2,
+
+    ball3_slider_left,
+    ball3_slider_right,
+    ball3,
+
     bright,
     auto_bright,
     bright_min,

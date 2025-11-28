@@ -3,6 +3,7 @@
 #include <Looper.h>
 #include <RunningGFX.h>
 #include <WiFiConnector.h>
+#include <Servo.h>
 
 #include "config.h"
 #include "matrix.h"
@@ -25,11 +26,19 @@ void runString(String str) {
     }
 }
 
+Servo servo_1;
+Servo servo_2;
+Servo servo_3;
+
 void setup() {
     Serial.begin(115200);
     Serial.println("\n" PROJECT_NAME " v" PROJECT_VER);
 
     matrix.begin();
+
+    servo_1.attach(SERVO_1);
+    servo_2.attach(SERVO_2);
+    servo_3.attach(SERVO_3);
 
     WiFiConnector.setName(PROJECT_NAME);
 
@@ -39,7 +48,7 @@ void setup() {
         Serial.print("Connected: ");
         Serial.println(WiFi.localIP());
         if (db[kk::show_ip]) runString(WiFi.localIP().toString());
-        
+
         ota.checkUpdate();
     });
 

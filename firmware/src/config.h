@@ -4,5 +4,9 @@
 #define PROJECT_NAME "BallClock"
 #define PROJECT_URL "AlexGyver/BallClock/main/project.json"
 
-#define LED_PIN D5
-#define PHOTO_PIN 0
+#define LED_PIN 5
+#define PHOTO_PIN 33
+
+#define SERVO_1 12
+#define SERVO_2 13
+#define SERVO_3 14

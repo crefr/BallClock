@@ -7,6 +7,7 @@
 #include <WiFiConnector.h>
 
 #include "config.h"
+#include "core/containers.h"
 #include "palettes.h"
 #include "redraw.h"
 
@@ -39,6 +40,28 @@ static void build(sets::Builder& b) {
         b.Select(kk::clock_style, "Шрифт", "Нет;Тип 1;Тип 2;Тип 3");
         b.Color(kk::clock_color, "Цвет");
     }
+    {
+        sets::Group g(b, "Летчик Uno");
+
+        b.Slider(kk::ball1_slider_left, "Мин. угол", 0, 180);
+        b.Slider(kk::ball1_slider_right, "Макс. угол", 0, 180);
+        b.Switch(kk::ball1, "Летчик 1");
+    }
+    {
+        sets::Group g(b, "Летчик Dos");
+
+        b.Slider(kk::ball2_slider_left, "Мин. угол", 0, 180);
+        b.Slider(kk::ball2_slider_right, "Макс. угол", 0, 180);
+        b.Switch(kk::ball2, "Летчик 2");
+    }
+    {
+        sets::Group g(b, "Летчик Tres");
+
+        b.Slider(kk::ball3_slider_left, "Мин. угол", 0, 180);
+        b.Slider(kk::ball3_slider_right, "Макс. угол", 0, 180);
+        b.Switch(kk::ball3, "Летчик 3");
+    }
+
     {
         sets::Group g(b, "Фон");
 
@@ -125,7 +148,7 @@ LP_LISTENER_("wifi_connect", []() {
 
 LP_TICKER([]() {
     if (Looper.thisSetup()) {
-        LittleFS.begin();
+        LittleFS.begin(true);
         db.begin();
 
         db.init(kk::wifi_ssid, "");
@@ -134,6 +157,18 @@ LP_TICKER([]() {
 
         db.init(kk::ntp_host, "pool.ntp.org");
         db.init(kk::ntp_gmt, 3);
+
+        db.init(kk::ball1_slider_left, 0);
+        db.init(kk::ball1_slider_right, 0);
+        db.init(kk::ball1, false);
+
+        db.init(kk::ball2_slider_left, 0);
+        db.init(kk::ball2_slider_right, 0);
+        db.init(kk::ball2, false);
+
+        db.init(kk::ball3_slider_left, 0);
+        db.init(kk::ball3_slider_right, 0);
+        db.init(kk::ball3, false);
 
         db.init(kk::bright, 100);
         db.init(kk::auto_bright, false);
@@ -171,9 +206,9 @@ LP_TICKER([]() {
     NTP.tick();
 });
 
-LP_TIMER(24ul * 60 * 60 * 1000, []() {
-    ota.checkUpdate();
-});
+// LP_TIMER(24ul * 60 * 60 * 1000, []() {
+//     ota.checkUpdate();
+// });
 
 // LP_TIMER(1000, []() {
 //     Serial.println(ESP.getFreeHeap());

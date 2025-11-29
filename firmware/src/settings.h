@@ -15,6 +15,8 @@ DB_KEYS(
     ntp_gmt,
     ntp_host,
 
+    alarm_time,
+
     ball1_slider_left,
     ball1_slider_right,
     ball1,

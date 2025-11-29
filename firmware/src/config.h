@@ -10,3 +10,5 @@
 #define SERVO_1 12
 #define SERVO_2 13
 #define SERVO_3 14
+
+#define PIEZO_PIN 25

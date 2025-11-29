@@ -8,6 +8,7 @@
 #include "config.h"
 #include "matrix.h"
 #include "settings.h"
+#include "piezo_player.h"
 
 void runString(String str) {
     RunningGFX run(matrix);
@@ -39,6 +40,8 @@ void setup() {
     servo_1.attach(SERVO_1);
     servo_2.attach(SERVO_2);
     servo_3.attach(SERVO_3);
+
+    pieza.setup();
 
     WiFiConnector.setName(PROJECT_NAME);
 

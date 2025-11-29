@@ -8,13 +8,19 @@
 
 #include "config.h"
 #include "core/containers.h"
+#include "core/packet.h"
 #include "palettes.h"
 #include "redraw.h"
+
+#include "servo_handler.h"
+#include "piezo_player.h"
 
 AutoOTA ota(PROJECT_VER, PROJECT_URL);
 
 GyverDBFile db(&LittleFS, "/data.db");
 static SettingsESP sett(PROJECT_NAME " v" PROJECT_VER, &db);
+
+extern ball_info balls[];
 
 static void update(sets::Updater& u) {
     String s;
@@ -40,28 +46,63 @@ static void build(sets::Builder& b) {
         b.Select(kk::clock_style, "Шрифт", "Нет;Тип 1;Тип 2;Тип 3");
         b.Color(kk::clock_color, "Цвет");
     }
-    {
-        sets::Group g(b, "Летчик Uno");
+    /* ===================== Летающие шарики ===================== */
+    static float left_angle[ball_count] = {db[kk::ball1_slider_left], db[kk::ball2_slider_left], db[kk::ball3_slider_left]};
+    static float right_angle[ball_count] = {db[kk::ball1_slider_right], db[kk::ball2_slider_right], db[kk::ball3_slider_right]};
 
-        b.Slider(kk::ball1_slider_left, "Мин. угол", 0, 180);
-        b.Slider(kk::ball1_slider_right, "Макс. угол", 0, 180);
-        b.Switch(kk::ball1, "Летчик 1");
+    {
+        sets::Group g(b, "Uno");
+
+        b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[0], &right_angle[0]);
+
+        if (b.Switch(balls[0].get_id(), "Огонь")) {
+            Looper.pushEvent("update_servo");
+        }
     }
     {
-        sets::Group g(b, "Летчик Dos");
+        sets::Group g(b, "Dos");
 
-        b.Slider(kk::ball2_slider_left, "Мин. угол", 0, 180);
-        b.Slider(kk::ball2_slider_right, "Макс. угол", 0, 180);
-        b.Switch(kk::ball2, "Летчик 2");
+        b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[1], &right_angle[1]);
+
+        if (b.Switch(balls[1].get_id(), "Огонь")) {
+            Looper.pushEvent("update_servo");
+        }
     }
     {
-        sets::Group g(b, "Летчик Tres");
+        sets::Group g(b, "Tres");
 
-        b.Slider(kk::ball3_slider_left, "Мин. угол", 0, 180);
-        b.Slider(kk::ball3_slider_right, "Макс. угол", 0, 180);
-        b.Switch(kk::ball3, "Летчик 3");
+        b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[2], &right_angle[2]);
+
+        if (b.Switch(balls[2].get_id(), "Огонь")) {
+            Looper.pushEvent("update_servo");
+        }
     }
+    {
+        if (b.Button("Сохранить")) {
+            for (int i = 0; i < ball_count; i++) {
+                balls[i].set_limits(left_angle[i], right_angle[i]);
+            }
+            Looper.pushEvent("update_servo");
+        }
+    }
+    /* ============================= Будильник ========================= */
+    {
+        sets::Group g(b, "Будильник");
 
+        b.Time(kk::alarm_time, "Время");
+        if (b.Button("Проиграть")) {
+            pieza.play();
+        }
+
+    }
+    /* ============================= Змейка  =========================== */
+    {
+        sets::Group g(b, "Snake game");
+
+        sets::Pos stick_pos;
+        b.Joystick(stick_pos);
+        b.Label(String(stick_pos.x) + " " + String(stick_pos.y));
+    }
     {
         sets::Group g(b, "Фон");
 

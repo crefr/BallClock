@@ -7,10 +7,11 @@ struct piezo_player {
 
     long time = 0;
     bool playing = false;
+    bool loop = true;
 
     void setup();
     void play();
-    void loop();
+    void tick();
     void stop();
 };
 

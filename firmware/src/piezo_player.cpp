@@ -141,19 +141,22 @@ void piezo_player::setup() {
 
 void piezo_player::play() {
     playing = true;
-    time = micros();
+    current_note = 0;
+    time = millis();
 }
 
-void piezo_player::loop() {
+void piezo_player::tick() {
     if (!playing) return;
 
     if (current_note >= melody_len) {
-        playing = false;
+        if (!loop) {
+            playing = false;
+        }
         current_note = 0;
         return;
     }
 
-    long cur_time = micros();
+    long cur_time = millis();
     if (cur_time - time > current_note_pause) {
         current_duration = ((60000 * 4) / bpm) / noteDurations[current_note];
 
@@ -172,4 +175,4 @@ void piezo_player::stop() {
 
 piezo_player pieza;
 
-LP_TICKER([]() {pieza.loop();} );
+LP_TICKER([]() {pieza.tick();} );

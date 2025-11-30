@@ -12,3 +12,6 @@
 #define SERVO_3 14
 
 #define PIEZO_PIN 25
+
+#define HALL_1 32
+#define HALL_3 34

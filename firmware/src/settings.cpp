@@ -22,6 +22,8 @@ static SettingsESP sett(PROJECT_NAME " v" PROJECT_VER, &db);
 
 extern ball_info balls[];
 
+static sets::Pos stick_pos;
+
 static void update(sets::Updater& u) {
     String s;
     s += photo.getRaw();
@@ -31,6 +33,12 @@ static void update(sets::Updater& u) {
     s += db[kk::adc_max].toInt16();
     s += "]";
     u.update("adc_val"_h, s);
+
+    s = String(stick_pos.x) + " " + String(stick_pos.y);
+    u.update("joystick_coord"_h, s);
+
+    s = String("holl3 = ") + String(analogRead(HALL_3));
+    u.update("holl1"_h, s);
 
     u.update("local_time"_h, NTP.timeToString());
     u.update("synced"_h, NTP.synced());
@@ -51,57 +59,58 @@ static void build(sets::Builder& b) {
     static float right_angle[ball_count] = {db[kk::ball1_slider_right], db[kk::ball2_slider_right], db[kk::ball3_slider_right]};
 
     {
-        sets::Group g(b, "Uno");
+        sets::Group g(b, "Лётчики");
 
+        b.Label("---- Uno ----");
         b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[0], &right_angle[0]);
 
-        if (b.Switch(balls[0].get_id(), "Огонь")) {
+        if (b.Switch(balls[0].get_id(), "Закрыть")) {
             Looper.pushEvent("update_servo");
         }
-    }
-    {
-        sets::Group g(b, "Dos");
 
+        b.Label("---- Dos ----");
         b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[1], &right_angle[1]);
 
-        if (b.Switch(balls[1].get_id(), "Огонь")) {
+        if (b.Switch(balls[1].get_id(), "Закрыть")) {
             Looper.pushEvent("update_servo");
         }
-    }
-    {
-        sets::Group g(b, "Tres");
 
+        b.Label("---- Tres ----");
         b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[2], &right_angle[2]);
 
-        if (b.Switch(balls[2].get_id(), "Огонь")) {
+        if (b.Switch(balls[2].get_id(), "Закрыть")) {
             Looper.pushEvent("update_servo");
         }
-    }
-    {
+
         if (b.Button("Сохранить")) {
             for (int i = 0; i < ball_count; i++) {
                 balls[i].set_limits(left_angle[i], right_angle[i]);
             }
             Looper.pushEvent("update_servo");
         }
+
+        b.Label("holl1"_h, "val = ");
     }
     /* ============================= Будильник ========================= */
     {
         sets::Group g(b, "Будильник");
 
         b.Time(kk::alarm_time, "Время");
-        if (b.Button("Проиграть")) {
+
+        if (b.Button("play"_h, "Проиграть")) {
             pieza.play();
         }
 
+        if (b.Button("stop"_h, "Стоп")) {
+            pieza.stop();
+        }
     }
     /* ============================= Змейка  =========================== */
     {
         sets::Group g(b, "Snake game");
 
-        sets::Pos stick_pos;
         b.Joystick(stick_pos);
-        b.Label(String(stick_pos.x) + " " + String(stick_pos.y));
+        b.Label("joystick_coord"_h, String(stick_pos.x) + " " + String(stick_pos.y));
     }
     {
         sets::Group g(b, "Фон");

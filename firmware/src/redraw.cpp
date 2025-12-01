@@ -12,6 +12,7 @@
 #include "matrix.h"
 #include "palettes.h"
 #include "settings.h"
+#include "snake.h"
 
 #include "hall_handler.h"
 
@@ -196,7 +197,6 @@ static void drawBack() {
     }
 }
 
-
 static void highlightDot(int x, int y, int hue) {
     const int x_coords[] = {x, x+1, x+1, x, x-1, x-1, x};
     const int y_coords[] = {y-1, y, y+1, y+1, y, y-1, y};
@@ -217,19 +217,32 @@ static void drawHallStatus() {
     }
 }
 
-LP_TIMER_("redraw", 50, []() {
-    Looper.thisTimer()->restart(50);
+Snake snake{};
+
+LP_TIMER_("redraw", 200, []() {
+    Looper.thisTimer()->restart(200);
 
     applyBright();
 
-    if (db[kk::night_mode] && photo.getFilt() < db[kk::night_trsh].toInt()) {
-        matrix.clear();
-        matrix.setColor24(db[kk::night_color]);
-        drawClock();
-    } else {
-        drawBack();
-        matrix.setColor24(db[kk::clock_color]);
-        drawClock();
+    switch (db[kk::mode].toInt()) {
+        case 0: {   // clock mode
+            if (db[kk::night_mode] && photo.getFilt() < db[kk::night_trsh].toInt()) {
+                matrix.clear();
+                matrix.setColor24(db[kk::night_color]);
+                drawClock();
+            } else {
+                drawBack();
+                matrix.setColor24(db[kk::clock_color]);
+                drawClock();
+            }
+        } break;
+
+        case 1: {
+            matrix.clear();
+
+            snake.tick();
+            snake.draw(matrix.getColor24());
+        } break;
     }
 
     drawHallStatus();

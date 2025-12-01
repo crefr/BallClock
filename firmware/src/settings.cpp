@@ -49,6 +49,11 @@ static void update(sets::Updater& u) {
 
 static void build(sets::Builder& b) {
     {
+        sets::Group g(b, "Режим");
+
+        b.Select(kk::mode, "Режим", "Часы;Змейка");
+    }
+    {
         sets::Group g(b, "Часы");
 
         b.Select(kk::clock_style, "Шрифт", "Нет;Тип 1;Тип 2;Тип 3");
@@ -202,6 +207,8 @@ LP_TICKER([]() {
 
         db.init(kk::ntp_host, "pool.ntp.org");
         db.init(kk::ntp_gmt, 3);
+
+        db.init(kk::mode, 0);
 
         db.init(kk::ball1_slider_left, 0);
         db.init(kk::ball1_slider_right, 0);

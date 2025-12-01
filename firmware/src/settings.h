@@ -16,6 +16,7 @@ DB_KEYS(
     ntp_host,
 
     alarm_time,
+    mode,       // 0 - clock, 1 - snaky
 
     ball1_slider_left,
     ball1_slider_right,

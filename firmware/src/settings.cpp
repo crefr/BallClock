@@ -37,7 +37,7 @@ static void update(sets::Updater& u) {
     s = String(stick_pos.x) + " " + String(stick_pos.y);
     u.update("joystick_coord"_h, s);
 
-    s = String("holl3 = ") + String(analogRead(HALL_3));
+    s = String("hall2 = ") + String(analogRead(HALL_2)) + String("hall1 = ") + String(analogRead(HALL_1));
     u.update("holl1"_h, s);
 
     u.update("local_time"_h, NTP.timeToString());

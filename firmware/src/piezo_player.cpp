@@ -135,8 +135,6 @@ int noteDurations[] = {
 const size_t melody_len = sizeof(melody)/sizeof(melody[0]);
 
 void piezo_player::setup() {
-    ledcSetup(ledcChannel, 50000, resolution); // временная настройка
-    ledcAttachPin(PIEZO_PIN, ledcChannel);
 }
 
 void piezo_player::play() {

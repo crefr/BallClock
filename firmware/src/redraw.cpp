@@ -216,11 +216,11 @@ static void drawHallStatus() {
         highlightDot(13, 2, hall1.getHue());
     }
 }
+// TODO: TODO: TODO
 
-Snake snake{};
-
-LP_TIMER_("redraw", 200, []() {
-    Looper.thisTimer()->restart(200);
+// >> TODO:
+LP_TIMER_("redraw", 50, []() {
+    Looper.thisTimer()->restart(50);
 
     applyBright();
 

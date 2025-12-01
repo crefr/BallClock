@@ -15,6 +15,7 @@
 
 #include "servo_handler.h"
 #include "piezo_player.h"
+#include "snake.h"
 
 AutoOTA ota("", "");
 
@@ -35,8 +36,8 @@ static void update(sets::Updater& u) {
     s += "]";
     u.update("adc_val"_h, s);
 
-    s = String(stick_pos.x) + " " + String(stick_pos.y);
-    u.update("joystick_coord"_h, s);
+    // s = String(stick_pos.x) + " " + String(stick_pos.y);
+    // u.update("joystick_coord"_h, s);
 
     s = String("hall2 = ") + String(analogRead(HALL_2)) + String("hall1 = ") + String(analogRead(HALL_1));
     u.update("holl1"_h, s);
@@ -114,7 +115,7 @@ static void build(sets::Builder& b) {
     {
         sets::Group g(b, "Snake game");
 
-        b.Joystick(stick_pos);
+        if (b.Joystick(stick_pos)) snake.set_dest_by_joystick(stick_pos);
         b.Label("joystick_coord"_h, String(stick_pos.x) + " " + String(stick_pos.y));
     }
     {

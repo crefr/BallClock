@@ -3,6 +3,8 @@
 #include "Looper.h"
 #include "config.h"
 #include "piezo_player.h"
+#include <ESP32Tone.h>
+
 #pragma region notes_def
 
 #define NOTE_B0  31

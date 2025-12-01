@@ -2,7 +2,7 @@
 
 #include <LittleFS.h>
 #include <Looper.h>
-#include <Servo.h>
+#include <ESP32Servo.h>
 
 #include "settings.h"
 

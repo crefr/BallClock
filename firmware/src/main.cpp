@@ -3,7 +3,7 @@
 #include <Looper.h>
 #include <RunningGFX.h>
 #include <WiFiConnector.h>
-#include <Servo.h>
+#include <ESP32Servo.h>
 
 #include "config.h"
 #include "matrix.h"

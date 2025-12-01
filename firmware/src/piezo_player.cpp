@@ -3,7 +3,7 @@
 #include "Looper.h"
 #include "config.h"
 #include "piezo_player.h"
-#include <ESP32Tone.h>
+#include <ESP32Servo.h>
 
 #pragma region notes_def
 
@@ -104,8 +104,8 @@ const int ledcChannel = 0;
 const int resolution = 8;   // разрешение duty (0..255)
 
 const int bpm = 114;
-int melody[] = {
 
+const int NeverGUp_melody[] = {
     NOTE_A3,  NOTE_B3,  NOTE_D4,  NOTE_B3,
     NOTE_FS4, NOTE_FS4, NOTE_E4,  0,        NOTE_A3, NOTE_B3, NOTE_D4, NOTE_B3,
     NOTE_E4,  NOTE_E4,  NOTE_D4,  NOTE_CS4, NOTE_B3, 0, NOTE_A3, NOTE_B3, NOTE_D4, NOTE_B3,
@@ -119,22 +119,56 @@ int melody[] = {
     NOTE_E4,  NOTE_D4, 0
 };
 
-// note durations: 4 = quarter note, 8 = eighth note, etc.:
-int noteDurations[] = {
-    16, 16, 16, 16,
-    6, 6, 6, 5, 16, 16, 16, 16,
-    6, 6, 6, 16, 16, 12, 16, 16, 16, 16,
-    6, 6, 6, 16, 16, 8, 8, 8,
+const float NeverGUp_durations[] =
+{
+    1./16, 1./16, 1./16, 1./16,
+    1./6, 1./6, 1.6, 1./5, 1./16, 1./16, 1./16, 1./16,
+    1./6, 1./6, 1.6, 1./16, 1./16, 1./12, 1./16, 1./16, 1./16, 1./16,
+    1./6, 1./6, 1.6, 1./16, 1./16, 1./8, 1./8, 1./8,
 
-    4, 4, 4, 16, 16, 16, 16,
-    6, 6, 6, 5, 16, 16, 16, 16,
-    6, 6, 6, 16, 16, 12, 16, 16, 16, 16,
-    6, 6, 6, 16, 16, 8, 8, 8,
-    4, 4, 2
+    1./4, 1./4, 1./4, 1./16, 1./16, 1./16, 1./16,
+    1./6, 1./6, 1./6, 1./5, 1./16, 1./16, 1./16, 1./16,
+    1./6, 1./6, 1./6, 1./16, 1./16, 1./12, 1./16, 1./16, 1./16, 1./16,
+    1./6, 1./6, 1./6, 1./16, 1./16, 1./8, 1./8, 1./8,
+    1./4, 1./4, 1./2
 
 };
 
-const size_t melody_len = sizeof(melody)/sizeof(melody[0]);
+piezo_song NeverGUp = {
+    .melody = NeverGUp_melody,
+    .note_durations = NeverGUp_durations,
+    .len = sizeof(NeverGUp_melody) / sizeof(NeverGUp_melody[0]),
+    .bpm = 114
+};
+
+int Home_melody[] = {
+    NOTE_E3,  NOTE_B3,  NOTE_E4,  NOTE_FS4, 0, NOTE_B3, NOTE_E4,  NOTE_FS4,
+    NOTE_GS3, NOTE_B3,  NOTE_E4,  NOTE_FS4, 0, NOTE_B3, NOTE_E4,  NOTE_FS4,
+    NOTE_G3,  NOTE_B3,  NOTE_E4,  NOTE_FS4, 0, NOTE_B4, NOTE_FS4, NOTE_E4,
+    NOTE_G3,  NOTE_B3,  NOTE_E4,  NOTE_FS4, 0, NOTE_B4, NOTE_B3,  NOTE_E4,
+    NOTE_B3,  NOTE_B4,  NOTE_FS4,
+    NOTE_E4,  NOTE_B4,  NOTE_B3,
+    NOTE_B3,  NOTE_E4,  NOTE_B4,  NOTE_CS5,
+    NOTE_B4,  NOTE_FS4, NOTE_E4,
+};
+
+float Home_durations[] = {
+    1./6, 1./12, 1./6, 1./12, 1./6, 1./12, 1./6, 1./12,
+    1./6, 1./12, 1./6, 1./12, 1./6, 1./12, 1./6, 1./12,
+    1./6, 1./12, 1./6, 1./12, 1./6, 1./12, 1./6, 1./12,
+    1./6, 1./12, 1./6, 1./12, 1./6, 1./12, 1./6, 1./12,
+    1./4, 1./4, 1./2,
+    1./4, 1./4, 1./2,
+    1./4, 1./4, 3./8, 1./8,
+    1./4, 1./4, 1./2
+};
+
+piezo_song Home = {
+    .melody = Home_melody,
+    .note_durations = Home_durations,
+    .len = sizeof(Home_melody) / sizeof(Home_melody[0]),
+    .bpm = 90
+};
 
 void piezo_player::setup() {
 }
@@ -148,7 +182,7 @@ void piezo_player::play() {
 void piezo_player::tick() {
     if (!playing) return;
 
-    if (current_note >= melody_len) {
+    if (current_note >= current_song.len) {
         if (!loop) {
             playing = false;
         }
@@ -158,9 +192,9 @@ void piezo_player::tick() {
 
     long cur_time = millis();
     if (cur_time - time > current_note_pause) {
-        current_duration = ((60000 * 4) / bpm) / noteDurations[current_note];
+        current_duration = ((60000.f * 4) / current_song.bpm) * current_song.note_durations[current_note];
 
-        tone(PIEZO_PIN, melody[current_note]*2, current_duration);
+        tone(PIEZO_PIN, current_song.melody[current_note], current_duration);
         current_note_pause = current_duration * 1.03;
         current_note++;
         time = cur_time;

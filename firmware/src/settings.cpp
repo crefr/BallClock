@@ -5,6 +5,7 @@
 #include <Looper.h>
 #include <SettingsESP.h>
 #include <WiFiConnector.h>
+#include <AutoOTA.h>
 
 #include "config.h"
 #include "core/containers.h"
@@ -15,7 +16,7 @@
 #include "servo_handler.h"
 #include "piezo_player.h"
 
-AutoOTA ota(PROJECT_VER, PROJECT_URL);
+AutoOTA ota("", "");
 
 GyverDBFile db(&LittleFS, "/data.db");
 static SettingsESP sett(PROJECT_NAME " v" PROJECT_VER, &db);
@@ -42,7 +43,6 @@ static void update(sets::Updater& u) {
 
     u.update("local_time"_h, NTP.timeToString());
     u.update("synced"_h, NTP.synced());
-    if (ota.hasUpdate()) u.update("ota_update"_h, F("Доступно обновление. Обновить прошивку?"));
 
     Looper.getTimer("redraw")->restart(100);
 }
@@ -173,13 +173,6 @@ static void build(sets::Builder& b) {
         }
     }
 
-    if (b.Confirm("ota_update"_h)) {
-        if (b.build.value.toBool()) {
-            Serial.println("OTA update!");
-            ota.update();
-        }
-    }
-
     if (b.build.isAction()) {
         switch (b.build.id) {
             case kk::ntp_gmt: NTP.setGMT(b.build.value); break;
@@ -190,6 +183,8 @@ static void build(sets::Builder& b) {
     Looper.getTimer("redraw")->restart(100);
     // if (b.Button("restart"_h, "restart")) ESP.restart();
 }
+
+
 
 LP_LISTENER_("wifi_connect", []() {
     db.update();
@@ -241,6 +236,7 @@ LP_TICKER([]() {
         db.init(kk::back_scale, 50);
         db.init(kk::back_angle, 0);
 
+        // sett.config
         WiFiConnector.connect(db[kk::wifi_ssid], db[kk::wifi_pass]);
         sett.begin();
         sett.onBuild(build);
@@ -256,9 +252,6 @@ LP_TICKER([]() {
     NTP.tick();
 });
 
-// LP_TIMER(24ul * 60 * 60 * 1000, []() {
-//     ota.checkUpdate();
-// });
 
 // LP_TIMER(1000, []() {
 //     Serial.println(ESP.getFreeHeap());

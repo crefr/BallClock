@@ -198,20 +198,11 @@ static void drawBack() {
 
 
 static void highlightDot(int x, int y, int hue) {
-    // uint32_t col = CRGB(CHSV(hue, 255, 255)).as_uint32_t();
     const int x_coords[] = {x, x+1, x+1, x, x-1, x-1, x};
     const int y_coords[] = {y-1, y, y+1, y+1, y, y-1, y};
     for (int i = 0; i < 7; i++) {
         matrix.setLED(x_coords[i], y_coords[i], CRGB(CHSV(hue + 10*i, 255, 255)).as_uint32_t());
     }
-    // uint32_t col = 0xFF00FF;
-    // matrix.setLED(x,   y,   col);
-    // matrix.setLED(x-1, y,   col);
-    // matrix.setLED(x+1, y,   col);
-    // matrix.setLED(x,   y-1, col);
-    // matrix.setLED(x,   y+1, col);
-    // matrix.setLED(x+1, y+1, col);
-    // matrix.setLED(x-1, y-1, col);
 }
 
 static void drawHallStatus() {
@@ -221,7 +212,6 @@ static void drawHallStatus() {
         highlightDot(3, 1, hall2.getHue());
     }
 
-    // TODO: add when second hall sensor is ready
     if (!db[kk::ball3] && hall1.magnet) {
         highlightDot(13, 2, hall1.getHue());
     }
@@ -234,12 +224,14 @@ LP_TIMER_("redraw", 50, []() {
 
     if (db[kk::night_mode] && photo.getFilt() < db[kk::night_trsh].toInt()) {
         matrix.clear();
+        matrix.setColor24(db[kk::night_color]);
+        drawClock();
     } else {
         drawBack();
+        matrix.setColor24(db[kk::clock_color]);
+        drawClock();
     }
 
-    matrix.setColor24(db[kk::night_color]);
-    drawClock();
     drawHallStatus();
 
     matrix.update();

@@ -5,6 +5,8 @@
 #include <WiFiConnector.h>
 #include <ESP32Servo.h>
 
+#include <AutoOTA.h>
+
 #include "config.h"
 #include "matrix.h"
 #include "settings.h"
@@ -37,6 +39,8 @@ void setup() {
 
     matrix.begin();
 
+    ESP32PWM::allocateTimer(1);
+
     servo_1.attach(SERVO_1);
     servo_2.attach(SERVO_2);
     servo_3.attach(SERVO_3);
@@ -52,7 +56,7 @@ void setup() {
         Serial.println(WiFi.localIP());
         if (db[kk::show_ip]) runString(WiFi.localIP().toString());
 
-        ota.checkUpdate();
+        // ota.checkUpdate();
     });
 
     WiFiConnector.onError([]() {

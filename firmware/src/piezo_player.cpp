@@ -122,9 +122,9 @@ const int NeverGUp_melody[] = {
 const float NeverGUp_durations[] =
 {
     1./16, 1./16, 1./16, 1./16,
-    1./6, 1./6, 1.6, 1./5, 1./16, 1./16, 1./16, 1./16,
-    1./6, 1./6, 1.6, 1./16, 1./16, 1./12, 1./16, 1./16, 1./16, 1./16,
-    1./6, 1./6, 1.6, 1./16, 1./16, 1./8, 1./8, 1./8,
+    1./6, 1./6, 1./6, 1./5, 1./16, 1./16, 1./16, 1./16,
+    1./6, 1./6, 1./6, 1./16, 1./16, 1./12, 1./16, 1./16, 1./16, 1./16,
+    1./6, 1./6, 1./6, 1./16, 1./16, 1./8, 1./8, 1./8,
 
     1./4, 1./4, 1./4, 1./16, 1./16, 1./16, 1./16,
     1./6, 1./6, 1./6, 1./5, 1./16, 1./16, 1./16, 1./16,
@@ -137,6 +137,7 @@ const float NeverGUp_durations[] =
 piezo_song NeverGUp = {
     .melody = NeverGUp_melody,
     .note_durations = NeverGUp_durations,
+    .pitch = 1.,
     .len = sizeof(NeverGUp_melody) / sizeof(NeverGUp_melody[0]),
     .bpm = 114
 };
@@ -166,6 +167,7 @@ float Home_durations[] = {
 piezo_song Home = {
     .melody = Home_melody,
     .note_durations = Home_durations,
+    .pitch = 1.5,
     .len = sizeof(Home_melody) / sizeof(Home_melody[0]),
     .bpm = 90
 };
@@ -194,7 +196,7 @@ void piezo_player::tick() {
     if (cur_time - time > current_note_pause) {
         current_duration = ((60000.f * 4) / current_song.bpm) * current_song.note_durations[current_note];
 
-        tone(PIEZO_PIN, current_song.melody[current_note], current_duration);
+        tone(PIEZO_PIN, current_song.melody[current_note]*current_song.pitch, current_duration);
         current_note_pause = current_duration * 1.03;
         current_note++;
         time = cur_time;
@@ -205,7 +207,6 @@ void piezo_player::stop() {
     playing = false;
     current_note = 0;
 }
-
 
 piezo_player pieza;
 

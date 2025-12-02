@@ -4,6 +4,7 @@
 #include "core/containers.h"
 
 #include "servo_handler.h"
+#include "alarm.h"
 
 extern Servo servo_1;
 extern Servo servo_2;

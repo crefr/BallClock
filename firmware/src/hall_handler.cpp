@@ -16,7 +16,7 @@ void hall_state::tick() {
             magnet = true;
         } else if (cur_time - time > close_wait_time) {
             ball.close();
-            time = cur_time;
+            time = LONG_MAX/2;
         }
     } else {
         magnet = false;

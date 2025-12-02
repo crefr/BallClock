@@ -16,6 +16,7 @@
 #include "servo_handler.h"
 #include "piezo_player.h"
 #include "snake.h"
+#include "alarm.h"
 
 AutoOTA ota("", "");
 
@@ -67,21 +68,21 @@ static void build(sets::Builder& b) {
     {
         sets::Group g(b, "Лётчики");
 
+//         b.Label("---- Uno ----");
+//         b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[0], &right_angle[0]);
+//
+//         if (b.Switch(balls[0].get_id(), "Закрыть")) {
+//             Looper.pushEvent("update_servo");
+//         }
+
         b.Label("---- Uno ----");
-        b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[0], &right_angle[0]);
-
-        if (b.Switch(balls[0].get_id(), "Закрыть")) {
-            Looper.pushEvent("update_servo");
-        }
-
-        b.Label("---- Dos ----");
         b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[1], &right_angle[1]);
 
         if (b.Switch(balls[1].get_id(), "Закрыть")) {
             Looper.pushEvent("update_servo");
         }
 
-        b.Label("---- Tres ----");
+        b.Label("---- Dos ----");
         b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[2], &right_angle[2]);
 
         if (b.Switch(balls[2].get_id(), "Закрыть")) {
@@ -101,7 +102,18 @@ static void build(sets::Builder& b) {
     {
         sets::Group g(b, "Будильник");
 
-        b.Time(kk::alarm_time, "Время");
+        if (b.Switch(kk::alarm_on, "Включить")) {
+            clock_alarm.set_state(db[kk::alarm_on].toBool());
+        }
+
+        if (b.Time(kk::alarm_time, "Время")) {
+            Serial.printf("Setting alarm time to %d\n", db[kk::alarm_time]);
+            clock_alarm.set(db[kk::alarm_time].toInt());
+        }
+
+        if (b.Select(kk::alarm_song, "Мелодия будильника", "1;2")) {
+            pieza.current_song = alarm_melodies[db[kk::alarm_song]];
+        }
 
         if (b.Button("play"_h, "Проиграть")) {
             pieza.play();
@@ -223,6 +235,10 @@ LP_TICKER([]() {
         db.init(kk::ball3_slider_right, 0);
         db.init(kk::ball3, false);
 
+        db.init(kk::alarm_on, false);
+        db.init(kk::alarm_time, 0);
+        db.init(kk::alarm_song, 0);
+
         db.init(kk::bright, 100);
         db.init(kk::auto_bright, false);
         db.init(kk::bright_min, 10);
@@ -244,7 +260,6 @@ LP_TICKER([]() {
         db.init(kk::back_scale, 50);
         db.init(kk::back_angle, 0);
 
-        // sett.config
         WiFiConnector.connect(db[kk::wifi_ssid], db[kk::wifi_pass]);
         sett.begin();
         sett.onBuild(build);
@@ -252,12 +267,16 @@ LP_TICKER([]() {
 
         NTP.setHost(db[kk::ntp_host]);
         NTP.setGMT(db[kk::ntp_gmt]);
+
+        clock_alarm.set(db[kk::alarm_time].toInt());
+        clock_alarm.set_state(db[kk::alarm_on].toBool());
     }
 
     WiFiConnector.tick();
     sett.tick();
     ota.tick();
     NTP.tick();
+    clock_alarm.tick();
 });
 
 

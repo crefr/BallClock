@@ -1,14 +1,18 @@
 #pragma once
+#include <Arduino.h>
 
 struct piezo_song {
     const int *melody;
     const float *note_durations;
-    size_t len;
+    float pitch;
+    uint32_t len;
 
     float bpm;
 };
 
 extern piezo_song NeverGUp, Home;
+const piezo_song alarm_melodies[2] = {Home, NeverGUp};
+
 
 struct piezo_player {
     int current_note = 0;

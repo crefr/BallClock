@@ -39,9 +39,10 @@ void setup() {
 
     matrix.begin();
 
-    ESP32PWM::allocateTimer(1);
 
     servo_1.attach(SERVO_1);
+
+    ESP32PWM::allocateTimer(1);
     servo_2.attach(SERVO_2);
     servo_3.attach(SERVO_3);
 

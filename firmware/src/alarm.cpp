@@ -57,9 +57,8 @@ void Alarm::start() {
     ringing = true;
     pieza.play();
 
-    // db[kk::ball2] = false;
+    db[kk::ball2] = false;
     db[kk::ball3] = false;
-    opened_servos = 1;
 
     Looper.pushEvent("update_servo");
 }

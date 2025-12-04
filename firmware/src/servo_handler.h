@@ -32,6 +32,4 @@ public:
 
 };
 
-const int ball_count = 3;
-
-
+const int ball_count = 2;

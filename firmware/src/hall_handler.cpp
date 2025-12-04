@@ -25,8 +25,8 @@ void hall_state::tick() {
 
 extern ball_info balls[ball_count];
 
-hall_state hall1(balls[2], HALL_1);
-hall_state hall2(balls[1], HALL_2);
+hall_state hall1(balls[1], HALL_1);
+hall_state hall2(balls[0], HALL_2);
 
 LP_TICKER([](){
     hall1.tick();

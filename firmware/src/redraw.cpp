@@ -216,8 +216,9 @@ static void drawHallStatus() {
         highlightDot(13, 2, hall1.getHue());
     }
 }
-// TODO: TODO: TODO
 
+uint8_t hue = 0;
+// TODO: TODO: TODO
 // >> TODO:
 LP_TIMER_("redraw", 50, []() {
     Looper.thisTimer()->restart(50);
@@ -226,7 +227,9 @@ LP_TIMER_("redraw", 50, []() {
 
     switch (db[kk::mode].toInt()) {
         case 0: {   // clock mode
-            if (db[kk::night_mode] && photo.getFilt() < db[kk::night_trsh].toInt()) {
+            // we do not have photo sensor
+            // if (db[kk::night_mode] && photo.getFilt() < db[kk::night_trsh].toInt()) {
+            if (db[kk::night_mode]) {
                 matrix.clear();
                 matrix.setColor24(db[kk::night_color]);
                 drawClock();
@@ -241,7 +244,8 @@ LP_TIMER_("redraw", 50, []() {
             matrix.clear();
 
             snake.tick();
-            snake.draw(matrix.getColor24());
+            snake.draw(hue);
+            hue++;
         } break;
     }
 

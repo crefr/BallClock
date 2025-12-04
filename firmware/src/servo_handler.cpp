@@ -7,13 +7,12 @@
 #include "alarm.h"
 
 extern Servo servo_1;
-extern Servo servo_2;
-extern Servo servo_3;
+extern Servo servo_left;
+extern Servo servo_right;
 
 ball_info balls[ball_count] = {
-    {servo_1, kk::ball1, kk::ball1_slider_left, kk::ball1_slider_right},
-    {servo_2, kk::ball2, kk::ball2_slider_left, kk::ball2_slider_right},
-    {servo_3, kk::ball3, kk::ball3_slider_left, kk::ball3_slider_right}
+    {servo_left , kk::ball2, kk::ball2_slider_left, kk::ball2_slider_right},
+    {servo_right, kk::ball3, kk::ball3_slider_left, kk::ball3_slider_right}
 };
 
 void ball_info::close() {

@@ -10,6 +10,7 @@
 #include "matrix.h"
 
 #define SQRT3 1.73
+#define JSTICK_THRD 25
 
 static void normalize(Snake::point &point);
 
@@ -17,21 +18,23 @@ void Snake::set_dest_by_joystick(const sets::Pos &pos) {
     float x = pos.x;
     float y = pos.y;
 
+    if (x*x + y*y < JSTICK_THRD*JSTICK_THRD) return;
+
     if (x >= 0) {
         if      (x >= SQRT3 * y && x >= -SQRT3 * y) {
-            if (dest != SnakeDest::Left) dest = SnakeDest::Right;
+            new_dest = SnakeDest::Right;
         } else if (y > 0) {
-            if (dest != SnakeDest::UpLeft) dest = SnakeDest::DownRight;
+            new_dest = SnakeDest::DownRight;
         } else {
-            if (dest != SnakeDest::DownLeft) dest = SnakeDest::UpRight;
+            new_dest = SnakeDest::UpRight;
         }
     } else {
         if      (x <= SQRT3 * y && x <= -SQRT3 * y) {
-            if (dest != SnakeDest::Right) dest = SnakeDest::Left;
+            new_dest = SnakeDest::Left;
         } else if (y > 0) {
-            if (dest != SnakeDest::UpRight) dest = SnakeDest::DownLeft;
+            new_dest = SnakeDest::DownLeft;
         } else {
-            if (dest != SnakeDest::DownRight) dest = SnakeDest::UpLeft;
+            new_dest = SnakeDest::UpLeft;
         }
     }
 }
@@ -41,12 +44,18 @@ void Snake::tick () {
     if (cur_step != speed) {
         return;
     }
-
     cur_step = 0;
 
     for (uint8_t snake_idx = len; snake_idx > 0; snake_idx--) {
         snake[snake_idx] = snake[snake_idx - 1];
     }
+
+    if (new_dest == SnakeDest::Right     && dest != SnakeDest::Left)      dest = SnakeDest::Right;
+    if (new_dest == SnakeDest::DownRight && dest != SnakeDest::UpLeft)    dest = SnakeDest::DownRight;
+    if (new_dest == SnakeDest::UpRight   && dest != SnakeDest::DownLeft)  dest = SnakeDest::UpRight;
+    if (new_dest == SnakeDest::Left      && dest != SnakeDest::Right)     dest = SnakeDest::Left;
+    if (new_dest == SnakeDest::DownLeft  && dest != SnakeDest::UpRight)   dest = SnakeDest::DownLeft;
+    if (new_dest == SnakeDest::UpLeft    && dest != SnakeDest::DownRight) dest = SnakeDest::UpLeft;
 
     step();
 
@@ -63,9 +72,10 @@ void Snake::tick () {
     }
 }
 
-void Snake::draw (uint32_t color) {
+void Snake::draw (uint8_t hue) {
     for (uint8_t snake_idx = 0; snake_idx < len; snake_idx++) {
-        matrix.setLED(snake[snake_idx].x, snake[snake_idx].y, color);
+        // uint32_t new_col = ;
+        matrix.setLED(snake[snake_idx].x, snake[snake_idx].y, CRGB(CHSV(hue + 10*snake_idx, 255, 255)).as_uint32_t());
     }
 
     matrix.setLED(apple.x, apple.y, 0xffffffff);

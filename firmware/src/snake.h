@@ -30,7 +30,7 @@ struct Snake {
     uint8_t speed;
     uint8_t cur_step = 0;
 
-    SnakeDest dest;
+    SnakeDest new_dest;
 
     Snake(uint8_t speed_) : speed(speed_) {
         init_snake();
@@ -51,13 +51,15 @@ struct Snake {
         place_apple();
     }
 
-    void draw (uint32_t color);
+    void draw (uint8_t hue);
 
     void set_dest_by_joystick(const sets::Pos &pos);
 
     void place_apple();
 
 private:
+    SnakeDest dest;
+
     void step ();
 };
 

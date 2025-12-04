@@ -49,11 +49,41 @@ static void update(sets::Updater& u) {
     Looper.getTimer("redraw")->restart(100);
 }
 
+#define BUTTON_NAME "o\no\no"
+
 static void build(sets::Builder& b) {
     {
         sets::Group g(b, "Режим");
 
-        b.Select(kk::mode, "Режим", "Часы;Змейка");
+        if (b.Select(kk::mode, "Режим", "Часы;Змейка")) b.reload();
+    }
+    /* ============================= Змейка  =========================== */
+    if (db[kk::mode].toInt() == 1) {
+        sets::Group g(b, "Snake game");
+
+        if (b.Select(kk::snake_control, "Управление", "Джойстик;Кнопки")) b.reload();
+
+        if (db[kk::snake_control].toInt() == 0) {
+            if (b.Joystick(stick_pos, true)) snake.set_dest_by_joystick(stick_pos);
+            b.Label("joystick_coord"_h, String(stick_pos.x) + " " + String(stick_pos.y));
+        } else {
+            {
+                sets::Buttons bt_row_1(b);
+                if (b.Button(BUTTON_NAME)) snake.new_dest = SnakeDest::DownLeft;
+                if (b.Button(BUTTON_NAME)) snake.new_dest = SnakeDest::DownRight;
+            }
+            {
+                sets::Buttons bt_row_2(b);
+                if (b.Button(BUTTON_NAME)) snake.new_dest = SnakeDest::Left;
+                b.Button(" ");
+                if (b.Button(BUTTON_NAME)) snake.new_dest = SnakeDest::Right;
+            }
+            {
+                sets::Buttons bt_row_3(b);
+                if (b.Button(BUTTON_NAME)) snake.new_dest = SnakeDest::UpLeft;
+                if (b.Button(BUTTON_NAME)) snake.new_dest = SnakeDest::UpRight;
+            }
+        }
     }
     {
         sets::Group g(b, "Часы");
@@ -62,30 +92,23 @@ static void build(sets::Builder& b) {
         b.Color(kk::clock_color, "Цвет");
     }
     /* ===================== Летающие шарики ===================== */
-    static float left_angle[ball_count] = {db[kk::ball1_slider_left], db[kk::ball2_slider_left], db[kk::ball3_slider_left]};
-    static float right_angle[ball_count] = {db[kk::ball1_slider_right], db[kk::ball2_slider_right], db[kk::ball3_slider_right]};
+    static float  left_angle[ball_count] = {db[kk::ball2_slider_left] , db[kk::ball3_slider_left] };
+    static float right_angle[ball_count] = {db[kk::ball2_slider_right], db[kk::ball3_slider_right]};
 
     {
         sets::Group g(b, "Лётчики");
 
-//         b.Label("---- Uno ----");
-//         b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[0], &right_angle[0]);
-//
-//         if (b.Switch(balls[0].get_id(), "Закрыть")) {
-//             Looper.pushEvent("update_servo");
-//         }
+        b.Label("---- Left ----");
+        b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[0], &right_angle[0]);
 
-        b.Label("---- Uno ----");
-        b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[1], &right_angle[1]);
-
-        if (b.Switch(balls[1].get_id(), "Закрыть")) {
+        if (b.Switch(balls[0].get_id(), "Закрыть")) {
             Looper.pushEvent("update_servo");
         }
 
-        b.Label("---- Dos ----");
-        b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[2], &right_angle[2]);
+        b.Label("---- Right ----");
+        b.Slider2("Угол", 0, 180, 1, Text(), &left_angle[1], &right_angle[1]);
 
-        if (b.Switch(balls[2].get_id(), "Закрыть")) {
+        if (b.Switch(balls[1].get_id(), "Закрыть")) {
             Looper.pushEvent("update_servo");
         }
 
@@ -122,13 +145,6 @@ static void build(sets::Builder& b) {
         if (b.Button("stop"_h, "Стоп")) {
             pieza.stop();
         }
-    }
-    /* ============================= Змейка  =========================== */
-    {
-        sets::Group g(b, "Snake game");
-
-        if (b.Joystick(stick_pos)) snake.set_dest_by_joystick(stick_pos);
-        b.Label("joystick_coord"_h, String(stick_pos.x) + " " + String(stick_pos.y));
     }
     {
         sets::Group g(b, "Фон");
@@ -222,10 +238,7 @@ LP_TICKER([]() {
         db.init(kk::ntp_gmt, 3);
 
         db.init(kk::mode, 0);
-
-        db.init(kk::ball1_slider_left, 0);
-        db.init(kk::ball1_slider_right, 0);
-        db.init(kk::ball1, false);
+        db.init(kk::snake_control, 0);
 
         db.init(kk::ball2_slider_left, 0);
         db.init(kk::ball2_slider_right, 0);

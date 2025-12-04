@@ -30,8 +30,8 @@ void runString(String str) {
 }
 
 Servo servo_1;
-Servo servo_2;
-Servo servo_3;
+Servo servo_left;
+Servo servo_right;
 
 void setup() {
     Serial.begin(115200);
@@ -43,8 +43,8 @@ void setup() {
     servo_1.attach(SERVO_1);
 
     ESP32PWM::allocateTimer(1);
-    servo_2.attach(SERVO_2);
-    servo_3.attach(SERVO_3);
+    servo_left.attach(SERVO_2);
+    servo_right.attach(SERVO_3);
 
     pieza.setup();
 

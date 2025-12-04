@@ -18,8 +18,10 @@ DB_KEYS(
     alarm_time,
     alarm_on,
     alarm_song,
-    mode,       // 0 - clock, 1 - snaky
+    mode,       // 0 - clock, 1 - snaky, 2 - running string
     snake_control, // 0 - joystick, 1 - buttons
+    running_str,
+    running_str_speed,
 
     ball2_slider_left,
     ball2_slider_right,

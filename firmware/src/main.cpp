@@ -11,25 +11,8 @@
 #include "matrix.h"
 #include "settings.h"
 #include "piezo_player.h"
+#include "running.h"
 
-void runString(String str) {
-    RunningGFX run(matrix);
-    matrix.clear();
-    matrix.setModeDiag();
-    run.setSpeed(10);
-    run.setWindow(0, matrix.width(), 1);
-    run.setColor24(0x00ff00);
-    run.setFont(gfx_font_3x5);
-    run.setText(str);
-    run.start();
-
-    while (run.tick() != RG_FINISH) {
-        delay(0);
-        yield();
-    }
-}
-
-Servo servo_1;
 Servo servo_left;
 Servo servo_right;
 
@@ -38,9 +21,6 @@ void setup() {
     Serial.println("\n" PROJECT_NAME " v" PROJECT_VER);
 
     matrix.begin();
-
-
-    servo_1.attach(SERVO_1);
 
     ESP32PWM::allocateTimer(1);
     servo_left.attach(SERVO_2);

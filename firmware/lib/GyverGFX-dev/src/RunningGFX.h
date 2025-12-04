@@ -12,7 +12,7 @@ class RunningGFX : public gfx::Core {
     RunningGFX(GyverGFX* gfx) : gfx::Core(gfx->width(), gfx->height()), _gfx(gfx) {}
 
     // установить текст String
-    void setText(String& str) {
+    void setText(const String& str) {
         setText(str.c_str());
     }
 

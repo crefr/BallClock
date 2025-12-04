@@ -5,6 +5,7 @@
 #include <GyverNTP.h>
 #include <Looper.h>
 
+#include "RunningGFX.h"
 #include "brezline.h"
 #include "config.h"
 #include "font_3x5_diag.h"
@@ -13,6 +14,7 @@
 #include "palettes.h"
 #include "settings.h"
 #include "snake.h"
+#include "running.h"
 
 #include "hall_handler.h"
 
@@ -218,12 +220,13 @@ static void drawHallStatus() {
 }
 
 uint8_t hue = 0;
-// TODO: TODO: TODO
-// >> TODO:
+extern RunningGFX * running_str_ptr;
+
 LP_TIMER_("redraw", 50, []() {
     Looper.thisTimer()->restart(50);
 
     applyBright();
+    matrix.setColor24(db[kk::night_mode] ? db[kk::night_color] : db[kk::clock_color]);
 
     switch (db[kk::mode].toInt()) {
         case 0: {   // clock mode
@@ -231,11 +234,9 @@ LP_TIMER_("redraw", 50, []() {
             // if (db[kk::night_mode] && photo.getFilt() < db[kk::night_trsh].toInt()) {
             if (db[kk::night_mode]) {
                 matrix.clear();
-                matrix.setColor24(db[kk::night_color]);
                 drawClock();
             } else {
                 drawBack();
-                matrix.setColor24(db[kk::clock_color]);
                 drawClock();
             }
         } break;
@@ -246,6 +247,18 @@ LP_TIMER_("redraw", 50, []() {
             snake.tick();
             snake.draw(hue);
             hue++;
+        } break;
+
+        case 2: {
+            static uint8_t counter = 0;
+
+            if (counter != 0) {
+                counter--;
+                break;
+            }
+            counter = db[kk::running_str_speed].toInt() - 1;
+
+            running_str_ptr->tickManual();
         } break;
     }
 

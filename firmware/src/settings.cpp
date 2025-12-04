@@ -6,7 +6,10 @@
 #include <SettingsESP.h>
 #include <WiFiConnector.h>
 #include <AutoOTA.h>
+#include <algorithm>
+#include <cstring>
 
+#include "RunningGFX.h"
 #include "config.h"
 #include "core/containers.h"
 #include "core/packet.h"
@@ -26,6 +29,11 @@ static SettingsESP sett(PROJECT_NAME " v" PROJECT_VER, &db);
 extern ball_info balls[];
 
 static sets::Pos stick_pos;
+
+// running str
+uint16_t str_speed = 10;
+char running_str_chr[256] = "";
+RunningGFX * running_str_ptr = nullptr;
 
 static void update(sets::Updater& u) {
     String s;
@@ -55,11 +63,14 @@ static void build(sets::Builder& b) {
     {
         sets::Group g(b, "Режим");
 
-        if (b.Select(kk::mode, "Режим", "Часы;Змейка")) b.reload();
+        if (b.Select(kk::mode, "Режим", "Часы;Змейка;Бегущая строка")) {
+            matrix.clear();
+            b.reload();
+        }
     }
-    /* ============================= Змейка  =========================== */
     if (db[kk::mode].toInt() == 1) {
-        sets::Group g(b, "Snake game");
+        /* ============================= Змейка  =========================== */
+        sets::Group g(b, "Змейка");
 
         if (b.Select(kk::snake_control, "Управление", "Джойстик;Кнопки")) b.reload();
 
@@ -84,6 +95,15 @@ static void build(sets::Builder& b) {
                 if (b.Button(BUTTON_NAME)) snake.new_dest = SnakeDest::UpRight;
             }
         }
+    } else if (db[kk::mode].toInt() == 2) {
+    /* ============================= Бегущая строка  =========================== */
+        sets::Group g(b, "Бегущая строка");
+
+        b.Slider(kk::running_str_speed, "Замедление", 1, 10, 1);
+        b.Input(kk::running_str, "Текст");
+
+        if (b.Button("run_str_btn"_h, "Проиграть"))
+            Looper.pushEvent("run_string");
     }
     {
         sets::Group g(b, "Часы");
@@ -225,6 +245,19 @@ LP_LISTENER_("wifi_connect", []() {
     WiFiConnector.connect(db[kk::wifi_ssid], db[kk::wifi_pass]);
 });
 
+LP_LISTENER_("run_string", []() {
+    db.update();
+
+    running_str_ptr->stop();
+    running_str_ptr->setColor24(matrix.getColor24());
+    running_str_ptr->setFont(gfx_font_3x5);
+
+    String input = db[kk::running_str].toText();
+    strncpy(running_str_chr, input.c_str(), 255);
+    running_str_ptr->setText(running_str_chr);
+    running_str_ptr->start();
+});
+
 LP_TICKER([]() {
     if (Looper.thisSetup()) {
         LittleFS.begin(true);
@@ -239,6 +272,8 @@ LP_TICKER([]() {
 
         db.init(kk::mode, 0);
         db.init(kk::snake_control, 0);
+        db.init(kk::running_str, "string");
+        db.init(kk::running_str_speed, 1);
 
         db.init(kk::ball2_slider_left, 0);
         db.init(kk::ball2_slider_right, 0);
@@ -280,6 +315,11 @@ LP_TICKER([]() {
 
         NTP.setHost(db[kk::ntp_host]);
         NTP.setGMT(db[kk::ntp_gmt]);
+
+        running_str_ptr = new RunningGFX(matrix);
+        running_str_ptr->setWindow(0, matrix.width(), 1);
+        running_str_ptr->setColor24(0x00ff00);
+        running_str_ptr->setFont(gfx_font_3x5);
 
         clock_alarm.set(db[kk::alarm_time].toInt());
         clock_alarm.set_state(db[kk::alarm_on].toBool());
